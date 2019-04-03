@@ -61,7 +61,7 @@ crc32table dd 0x000000000, 0x077073096, 0x0ee0e612c, 0x0990951ba, 0x0076dc419
         dd 0x02d02ef8d
 
 
-buff         rb 200
+buff         rb MAX_PATH*2
 copied       db 'Hash copied to Clipboard',0
 blanc        db '',0
 hMem         dd ?
@@ -87,9 +87,9 @@ proc DialogProc hwnddlg,msg,wparam,lparam
         je      .wmclose
         xor     eax,eax
         jmp     .finish
-	.wminitdialog:
+        .wminitdialog:
         jmp     .wmencode
-	.wmcommand:
+        .wmcommand:
         cmp     [wparam],BN_CLICKED shl 16 + IDCANCEL
         je      .wmclose
         cmp     [wparam],BN_CLICKED shl 16 + ID_COPYB
@@ -97,22 +97,22 @@ proc DialogProc hwnddlg,msg,wparam,lparam
         cmp     [wparam],EN_CHANGE shl 16 + ID_TXT
         je      .wmencode
         jmp     .processed
-	.wmencode:
-        invoke  GetDlgItemText,[hwnddlg],ID_TXT,buff,100
+        .wmencode:
+        invoke  GetDlgItemText,[hwnddlg],ID_TXT,buff,MAX_PATH
         invoke  lstrlen,buff
         test    eax, eax
         jnz     @f
 
         invoke  SetDlgItemText,[hwnddlg],ID_CRC,NULL
         jmp     .processed
-	@@:
+        @@:
         stdcall crc32proc,buff,eax
         invoke  wsprintf,buff,mask,eax
         add     esp,12
         invoke  SetDlgItemText,[hwnddlg],ID_CRC,buff
         invoke  SetDlgItemText,[hwnddlg],ID_COPY, blanc
         jmp     .processed
-	.wmcopy2clipboard:
+        .wmcopy2clipboard:
 
         invoke  lstrlen,buff
         mov ebx, eax
@@ -133,11 +133,11 @@ proc DialogProc hwnddlg,msg,wparam,lparam
 
         invoke  SetDlgItemText,[hwnddlg],ID_COPY, copied
         jmp     .processed
-	.wmclose:
+        .wmclose:
         invoke  EndDialog,[hwnddlg],0
-	.processed:
+        .processed:
         mov     eax,1
-	.finish:
+        .finish:
         pop     edi esi ebx
         ret
 endp
@@ -153,7 +153,7 @@ proc crc32proc lData:dword, dLen:dword
         mov     ecx,[dLen]
 
         xor     eax,eax
-	crc32loop:
+        crc32loop:
         lodsb
         mov     ebx,edx
         and     ebx,0x0FF
