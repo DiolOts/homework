@@ -1,7 +1,7 @@
 use16
 CURRENT_OFFSET EQU 0x7c00
 org CURRENT_OFFSET
-NEW_SEG EQU 0x1000
+NEW_SEG EQU 0x8000
 start:  
     mov ax, 0xffff
     mov sp, ax
